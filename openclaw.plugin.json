@@ -1,0 +1,9 @@
+{
+  "id": "cubepath",
+  "name": "CubePath",
+  "description": "Deploy and manage CubePath cloud infrastructure from OpenClaw.",
+  "categories": ["developer-tools"],
+  "activation": { "onStartup": true },
+  "configSchema": { "type": "object", "additionalProperties": false },
+  "skills": ["skills"]
+}
