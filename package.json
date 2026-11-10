@@ -6,7 +6,7 @@
   "license": "MIT",
   "homepage": "https://mcp.cubepath.com",
   "repository": { "type": "git", "url": "git+https://github.com/CubePathInc/cubepath-openclaw-plugin.git" },
-  "files": ["index.js", "tool-policy.js", "openclaw.plugin.json", "skills", "README.md", "LICENSE"],
+  "files": ["assets", "index.js", "tool-policy.js", "openclaw.plugin.json", "skills", "README.md", "LICENSE"],
   "scripts": {
     "test": "node --test",
     "sync-tools": "node scripts/sync-tool-policy.mjs"
