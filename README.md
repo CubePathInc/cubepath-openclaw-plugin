@@ -5,45 +5,60 @@ networking, DNS, CDN, Kubernetes, managed databases and object storage.
 
 The tools come from the official [CubePath MCP server](https://mcp.cubepath.com). This plugin adds
 approval prompts for anything that changes your infrastructure, and a skill that teaches the agent
-to resolve IDs, confirm prices and follow queued operations.
+to resolve IDs, confirm prices and follow queued operations. It contains no credentials and no
+server code.
+
+## Requirements
+
+- OpenClaw 2026.11.1 or later, tested with 2026.11.2.
+- A [CubePath account](https://my.cubepath.com).
+- Any model with tool calling. CubePath access and model access are separate: the plugin does not
+  need a particular model or provider.
 
 ## Install
-
-Requires OpenClaw 2026.11.1 or later and a [CubePath account](https://my.cubepath.com).
 
 ```bash
 openclaw plugins install clawhub:@cubepath/openclaw
 openclaw mcp set cubepath '{"url":"https://mcp.cubepath.com/mcp","transport":"streamable-http","auth":"oauth"}'
+openclaw gateway stop
 openclaw mcp login cubepath
+openclaw gateway start
 ```
 
-Stop the Gateway before `mcp login`, and restart it afterwards. If OpenClaw asks for capability
-consent, rerun the install command with `--accept-capabilities`. Start a new chat once it is
-installed: an open chat does not see the new skill.
+`mcp login` opens CubePath in your browser to authorize OpenClaw. If OpenClaw asks for capability
+consent, rerun the install command with `--accept-capabilities`. Then start a new chat: an open
+chat does not see the new skill.
 
 The server must be named `cubepath`: approval prompts only apply to tools with that prefix.
 
-**OpenClaw on a remote server.** After you authorize, the browser returns to `127.0.0.1:8989` on
-the machine running OpenClaw. Either open an SSH tunnel from your computer before running
-`mcp login`:
+### OpenClaw on a remote server
+
+After you authorize, the browser is sent to `127.0.0.1:8989`, which is the server, not your
+computer, so the page fails to load. That is expected: copy the `code` value from the address bar
+and finish on the server:
 
 ```bash
-ssh -L 8989:127.0.0.1:8989 you@your-server
+openclaw mcp login cubepath --code <code>
 ```
-
-or let the redirect fail, copy the `code` value from the browser's address bar, and run
-`openclaw mcp login cubepath --code <code>` on the server.
 
 ### With an API token
 
-Create a token in the [dashboard](https://my.cubepath.com) with only the scopes you need, export it
-as `CUBEPATH_API_TOKEN`, and run:
+Simpler on a server without a browser. Create a token in the
+[dashboard](https://my.cubepath.com) with only the scopes you need, export it as
+`CUBEPATH_API_TOKEN`, and run:
 
 ```bash
 openclaw mcp set cubepath '{"url":"https://mcp.cubepath.com/mcp","transport":"streamable-http","headers":{"Authorization":"Bearer ${CUBEPATH_API_TOKEN}"}}'
 ```
 
-Keep the single quotes so that the variable is stored as a reference, not as its value.
+Keep the single quotes so that the variable is stored as a reference, not as its value. Never
+paste a token into the chat.
+
+## Try it
+
+1. "List my VPS and their IPs."
+2. "Create a DNS zone for example.com with an A record for www pointing to my server web-1."
+3. "Take a snapshot of web-1, tell me the price first."
 
 ## Safety
 
@@ -72,17 +87,18 @@ always applies.
 
 Start with a read-only token if you are trying this out. Creating resources costs money.
 
-## Model and token use
+## Token use
 
 Every step of the agent resends OpenClaw's system prompt and the whole conversation, so the
 number of steps decides the cost more than the size of any single reply.
 
-- **Use a capable model.** Small models guess parameter names and retry, and every failed write
-  also asks for approval again. In our tests `gpt-4.1-mini` often skipped the skill and
-  guessed, and even `gpt-4.1` sometimes guessed parameters or asked for IDs it could look up.
 - **Start a new chat per task**, so old history is not resent.
 - **Turn off tools you do not use** with `tools.deny` or a smaller `tools.profile`: every tool
   definition is sent with every request.
+
+## Support
+
+Open an issue in this repository, or contact [CubePath support](https://my.cubepath.com).
 
 ## Development
 
