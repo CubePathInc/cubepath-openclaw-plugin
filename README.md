@@ -31,19 +31,9 @@ chat does not see the new skill.
 
 The server must be named `cubepath`: approval prompts only apply to tools with that prefix.
 
-### OpenClaw on a remote server
-
-After you authorize, the browser is sent to `127.0.0.1:8989`, which is the server, not your
-computer, so the page fails to load. That is expected: copy the `code` value from the address bar
-and finish on the server:
-
-```bash
-openclaw mcp login cubepath --code <code>
-```
-
 ### With an API token
 
-Simpler on a server without a browser. Create a token in the
+Instead of signing in, you can create a token in the
 [dashboard](https://my.cubepath.com) with only the scopes you need, export it as
 `CUBEPATH_API_TOKEN`, and run:
 
@@ -70,8 +60,7 @@ paste a token into the chat.
 
 **You need somewhere to approve.** Without a connected approval surface, such as the Control UI or
 a chat channel that supports `/approve`, every action that changes something is blocked with
-`no approval route`. Read-only tools keep working. Restarting the Gateway disconnects the
-Control UI: reload it before asking for anything that changes your infrastructure. See
+`no approval route`. Read-only tools keep working. See
 [plugin permission requests](https://docs.openclaw.ai/plugins/plugin-permission-requests).
 
 Each call is approved separately: if an approved call fails and the agent retries it, you are
@@ -86,15 +75,6 @@ price and wait for your OK first, but a model can skip that, so the prompt is th
 always applies.
 
 Start with a read-only token if you are trying this out. Creating resources costs money.
-
-## Token use
-
-Every step of the agent resends OpenClaw's system prompt and the whole conversation, so the
-number of steps decides the cost more than the size of any single reply.
-
-- **Start a new chat per task**, so old history is not resent.
-- **Turn off tools you do not use** with `tools.deny` or a smaller `tools.profile`: every tool
-  definition is sent with every request.
 
 ## Support
 
