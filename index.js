@@ -10,12 +10,14 @@ const WRITE_NOTICE =
   `until you run /${RESET_COMMAND}.`;
 const CRITICAL_NOTICE = "Can delete resources or data, and may cost money. Check the target.";
 
+// A boolean is a switch, never a secret: token_auth_enabled must show which way it goes.
+function isSecret(name, value) {
+  return typeof value !== "boolean" && SENSITIVE_PARAM.test(name);
+}
+
 function describeParams(params) {
   const shown = Object.fromEntries(
-    Object.entries(params ?? {}).map(([name, value]) => [
-      name,
-      SENSITIVE_PARAM.test(name) ? "[hidden]" : value,
-    ]),
+    Object.entries(params ?? {}).map(([name, value]) => [name, isSecret(name, value) ? "[hidden]" : value]),
   );
   const text = JSON.stringify(shown);
   return text.length > MAX_PARAMS ? `${text.slice(0, MAX_PARAMS - 1)}…` : text;

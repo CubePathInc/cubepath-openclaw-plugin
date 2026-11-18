@@ -58,6 +58,16 @@ test("secrets stay out of the approval prompt", () => {
   for (const leaked of ["hunter2", "secret-script", "abc"]) assert.ok(!description.includes(leaked));
 });
 
+test("switches named like a secret stay visible", () => {
+  const on = approvalFor("cubepath__cubepath_cdn_zone_update", { zone_uuid: "z", token_auth_enabled: true });
+  const off = approvalFor("cubepath__cubepath_cdn_zone_update", { zone_uuid: "z", token_auth_enabled: false });
+  assert.match(on.description, /"token_auth_enabled":true/);
+  assert.match(off.description, /"token_auth_enabled":false/);
+  assert.notEqual(on.description, off.description);
+  const secret = approvalFor("cubepath__cubepath_cdn_zone_update", { token_auth_secret: "s3cret" });
+  assert.doesNotMatch(secret.description, /s3cret/);
+});
+
 test("every tool has exactly one class", () => {
   const all = [...READ_ONLY_TOOLS, ...WRITE_TOOLS, ...DESTRUCTIVE_TOOLS];
   assert.equal(new Set(all).size, all.length);
